@@ -1,0 +1,68 @@
+1. Сделать запрос, в котором мы выберем все данные о городе – регион, страна.
+
+select country_id, region_id, title from geodata._cities
+where title like 'Уфа';
+
+2. Выбрать все города из Московской области.
+
+select * from _cities
+where (region_id like (select id from _regions
+where title like 'Московская область'))
+
+1. Выбрать среднюю зарплату по отделам.
+
+SELECT 
+    t1.dept_name AS название_отдела,
+    AVG(t3.salary) AS средняя_зп_отдела
+FROM
+    employees.departments t1
+        JOIN
+    employees.dept_emp t2 ON t1.dept_no = t2.dept_no
+        JOIN
+    employees.salaries t3 ON t2.emp_no = t3.emp_no
+GROUP BY t1.dept_name
+
+2. Выбрать максимальную зарплату у сотрудника.
+
+SELECT 
+    MAX(salary)
+FROM
+    employees.salaries;
+    
+3. Удалить одного сотрудника, у которого максимальная зарплата.
+
+use employees;
+DELETE FROM employees 
+WHERE
+    emp_no = (SELECT 
+        emp_no
+    FROM
+        salaries
+    
+    WHERE
+        (SELECT 
+            MAX(salary)
+        FROM
+            salaries) = salary)
+            
+4. Посчитать количество сотрудников во всех отделах.
+
+SELECT 
+    COUNT(*) общее_число_сотрудников
+FROM
+    employees.dept_emp
+    
+5. Найти количество сотрудников в отделах и посмотреть, сколько всего денег получает отдел.
+
+use employees;
+SELECT 
+    t1.dept_name название_отдела,
+    COUNT(DISTINCT t2.emp_no) число_сотрудников,
+    SUM(salary) сумма_выданная_отделу
+FROM
+    departments t1
+        INNER JOIN
+    dept_emp t2 ON t1.dept_no = t2.dept_no
+        INNER JOIN
+    salaries t3 ON t3.emp_no = t2.emp_no
+GROUP BY t1.dept_name
