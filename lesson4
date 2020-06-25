@@ -1,0 +1,33 @@
+--1. Создать VIEW на основе запросов, которые вы сделали в ДЗ к уроку 3.
+
+CREATE 
+    ALGORITHM = UNDEFINED 
+    DEFINER = `root`@`localhost` 
+    SQL SECURITY DEFINER
+VIEW `employees`.`middle_salary` AS
+    SELECT 
+        `t1`.`dept_name` AS `название_отдела`,
+        AVG(`t3`.`salary`) AS `средняя_зп_отдела`
+    FROM
+        ((`employees`.`departments` `t1`
+        JOIN `employees`.`dept_emp` `t2` ON ((`t1`.`dept_no` = `t2`.`dept_no`)))
+        JOIN `employees`.`salaries` `t3` ON ((`t2`.`emp_no` = `t3`.`emp_no`)))
+    GROUP BY `t1`.`dept_name`
+    
+--2. Создать функцию, которая найдет менеджера по имени и фамилии.
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `find_employees`(first_name char(14), last_name char(16)) RETURNS int
+    READS SQL DATA
+BEGIN
+RETURN (select t1.emp_no from dept_manager t1
+join employees t2 on t1.emp_no = t2.emp_no
+where t2.first_name = first_name and t2.last_name = last_name
+limit 1);
+END
+
+--3. Создать триггер, который при добавлении нового сотрудника будет выплачивать ему вступительный бонус, занося запись об этом в таблицу salary.
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `employees_AFTER_INSERT` AFTER INSERT ON `employees` FOR EACH ROW BEGIN
+insert into salaries(emp_no, salary, from_date, to_date) 
+value ((select emp_no from employees order by emp_no desc limit 1), 10000, (select curdate()), (select curdate()));
+END
