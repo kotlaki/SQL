@@ -1,0 +1,27 @@
+
+1. Создать нового пользователя и задать ему права доступа на базу данных «Страны и города мира».
+
+mysql> use geodata;
+Database changed
+mysql> create user 'voland'@'localhost' identified by '123';
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> grant all privileges on geodata to 'voland'@'localhost';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> flush privileges;
+Query OK, 0 rows affected (0.01 sec)
+
+2. Сделать резервную копию базы, удалить базу и пересоздать из бекапа.
+
+c:\Program Files\MySQL\MySQL Server 8.0\bin>mysqldump -uroot -proot123 geodata > c:\temp\dump.sql
+mysqldump: [Warning] Using a password on the command line interface can be insecure.
+
+DROP DATABASE `geodata`
+Query OK, 0 rows affected (0.01 sec)
+
+CREATE SCHEMA `geodata`
+Query OK, 0 rows affected (0.01 sec)
+
+c:\Program Files\MySQL\MySQL Server 8.0\bin>mysql -uroot -proot123 geodata < c:\temp\dump.sql
+mysql: [Warning] Using a password on the command line interface can be insecure.
